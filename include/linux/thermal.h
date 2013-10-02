@@ -96,6 +96,7 @@ struct thermal_cooling_device {
 #define KELVIN_TO_CELSIUS(t)	(long)(((long)t-2732 >= 0) ?	\
 				((long)t-2732+5)/10 : ((long)t-2732-5)/10)
 #define CELSIUS_TO_KELVIN(t)	((t)*10+2732)
+	uint8_t active;
 
 struct thermal_zone_device {
 	int id;
@@ -162,6 +163,8 @@ void thermal_zone_device_update(struct thermal_zone_device *);
 struct thermal_cooling_device *thermal_cooling_device_register(char *, void *,
 		const struct thermal_cooling_device_ops *);
 void thermal_cooling_device_unregister(struct thermal_cooling_device *);
+int sensor_activate_trip(uint32_t sensor_id, struct sensor_threshold *threshold,
+		bool enable);
 
 #ifdef CONFIG_NET
 extern int thermal_generate_netlink_event(u32 orig, enum events event);
