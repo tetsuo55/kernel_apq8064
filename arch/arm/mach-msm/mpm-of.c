@@ -28,6 +28,7 @@
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <asm/hardware/gic.h>
+#include <linux/regulator/rpm-smd-regulator.h>
 #include <asm/arch_timer.h>
 #include <mach/gpio.h>
 #include <mach/mpm.h>

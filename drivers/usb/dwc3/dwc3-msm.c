@@ -32,6 +32,7 @@
 #include <linux/usb/gadget.h>
 #include <linux/usb/msm_hsusb.h>
 #include <linux/regulator/consumer.h>
+#include <linux/regulator/rpm-smd-regulator.h>
 
 #include <mach/rpm-regulator.h>
 

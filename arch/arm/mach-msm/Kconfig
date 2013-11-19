@@ -66,7 +66,7 @@ config ARCH_MSM7X30
 	select MULTI_IRQ_HANDLER
 	select MSM_PM2 if PM
 	select HOLES_IN_ZONE if SPARSEMEM
-	select MSM_MODEM_RESTART
+	select REGULATOR_RPM_SMD
 
 config ARCH_QSD8X50
 	bool "QSD8X50"
@@ -140,6 +140,7 @@ config ARCH_MSM8X60
 	select MSM_MULTIMEDIA_USE_ION
 	select MSM_PM8X60 if PM
 	select MSM_RUN_QUEUE_STATS
+	select REGULATOR_RPM_SMD
 	select ARM_HAS_SG_CHAIN
 
 config ARCH_MSM8960
@@ -167,7 +168,7 @@ config ARCH_MSM8960
 	select MSM_REMOTE_SPINLOCK_SFPB
 	select ARCH_SPARSEMEM_ENABLE
 	select ARCH_HAS_HOLES_MEMORYMODEL
-	select CLEANCACHE
+	select MSM_RPM_REGULATOR_SMD
 	select QCACHE
 	select MSM_MULTIMEDIA_USE_ION
 	select MULTI_IRQ_HANDLER
@@ -232,7 +233,7 @@ config ARCH_APQ8064
 	select MSM_GPIOMUX
 	select MSM_REMOTE_SPINLOCK_SFPB
 	select MSM_PIL
-	select MSM_QDSP6_APR
+	select REGULATOR_RPM_SMD
 	select MSM_QDSP6_CODECS
 	select MSM_AUDIO_QDSP6 if SND_SOC
 	select MULTI_IRQ_HANDLER
@@ -274,10 +275,9 @@ config ARCH_MSM8974
 	select SPARSE_IRQ
 	select MSM_RPM_SMD
 	select REGULATOR
-	select MSM_QDSP6_APRV2
+	select REGULATOR_RPM_SMD
 	select MSM_QDSP6V2_CODECS
 	select MSM_AUDIO_QDSP6V2 if SND_SOC
-	select MSM_RPM_REGULATOR_SMD
 	select ARM_HAS_SG_CHAIN
 	select MSM_RUN_QUEUE_STATS
 
@@ -311,10 +311,9 @@ config ARCH_MSM8226
 	select SPARSE_IRQ
 	select MSM_RPM_SMD
 	select REGULATOR
-	select MSM_QDSP6_APRV2
+	select REGULATOR_RPM_SMD
 	select MSM_QDSP6V2_CODECS
 	select MSM_AUDIO_QDSP6V2 if SND_SOC
-	select MSM_RPM_REGULATOR_SMD
 	select ARM_HAS_SG_CHAIN
 
 config ARCH_FSM9XXX
@@ -339,7 +338,7 @@ config ARCH_MSM9615
 	select MSM_SPM_V2
 	select MSM_NATIVE_RESTART
 	select REGULATOR
-	select MSM_RPM_REGULATOR
+	select REGULATOR_RPM_SMD
 	select MULTI_IRQ_HANDLER
 	select MSM_PM8X60 if PM
 	select MSM_XO
@@ -1921,18 +1920,6 @@ config MSM_RPM_REGULATOR
 	  Compile in support for the RPM regulator driver, used for setting
 	  voltages and other parameters of the various power rails supplied
 	  by some Qualcomm PMICs.
-
-config MSM_RPM_REGULATOR_SMD
-	bool "SMD RPM regulator driver"
-	depends on REGULATOR
-	depends on OF
-	depends on MSM_RPM_SMD
-	help
-	  Compile in support for the SMD RPM regulator driver which is used for
-	  setting voltages and other parameters of the various power rails
-	  supplied by some Qualcomm PMICs.  The SMD RPM regulator driver should
-	  be used on systems which contain an RPM which communicates with the
-	  application processor over SMD.
 
 config MSM_SUBSYSTEM_RESTART
 	bool "MSM Subsystem Restart"
