@@ -26,7 +26,6 @@
 #include <linux/memory.h>
 #include <linux/regulator/qpnp-regulator.h>
 #include <linux/regulator/rpm-smd-regulator.h>
-#include <linux/msm_tsens.h>
 #include <linux/clk/msm-clk-provider.h>
 #include <asm/mach/map.h>
 #include <asm/mach/arch.h>
@@ -41,7 +40,6 @@
 #include <mach/msm_smd.h>
 #include <mach/rpm-smd.h>
 #include <soc/msm/smem.h>
-#include <linux/msm_thermal.h>
 #include "board-dt.h"
 #include "clock.h"
 #include "platsmp.h"
@@ -94,8 +92,6 @@ void __init msm8226_add_drivers(void)
 		msm_clock_init(&msm8226_rumi_clock_init_data);
 	else
 		msm_clock_init(&msm8226_clock_init_data);
-	tsens_tm_init_driver();
-	msm_thermal_device_init();
 }
 
 void __init msm8226_init(void)
