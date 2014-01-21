@@ -33,9 +33,9 @@
 #include <linux/of.h>
 #include <linux/of_platform.h>
 #include <mach/socinfo.h>
+#include <soc/qcom/rpm-notifier.h>
+#include <soc/qcom/rpm-smd.h>
 #include <mach/msm_smd.h>
-#include <mach/rpm-smd.h>
-#include "rpm-notifier.h"
 
 /* Debug Definitions */
 

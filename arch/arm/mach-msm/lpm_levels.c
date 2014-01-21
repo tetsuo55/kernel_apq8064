@@ -20,7 +20,7 @@
 #include <mach/mpm.h>
 #include "lpm_resources.h"
 #include "pm.h"
-#include "rpm-notifier.h"
+#include <soc/qcom/rpm-notifier.h>
 
 static struct msm_rpmrs_level *msm_lpm_levels;
 static int msm_lpm_level_count;

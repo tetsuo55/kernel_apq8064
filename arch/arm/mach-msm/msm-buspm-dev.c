@@ -1,4 +1,4 @@
-/* Copyright (c) 2011-2012, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2011-2014, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -21,11 +21,18 @@
 #include <linux/device.h>
 #include <linux/uaccess.h>
 #include <linux/miscdevice.h>
-#include <linux/memory_alloc.h>
+#include <linux/dma-mapping.h>
+#include <soc/qcom/rpm-smd.h>
 #include "msm-buspm-dev.h"
 
 #define MSM_BUSPM_DRV_NAME "msm-buspm-dev"
 
+enum msm_buspm_spdm_res {
+	SPDM_RES_ID = 0,
+	SPDM_RES_TYPE = 0x63707362,
+	SPDM_KEY = 0x00006e65,
+	SPDM_SIZE = 4,
+};
 /*
  * Allocate kernel buffer.
  * Currently limited to one buffer per file descriptor.  If alloc() is
@@ -58,9 +65,9 @@ static void msm_buspm_dev_free(struct file *filp)
 {
 	struct msm_buspm_map_dev *dev = filp->private_data;
 
-	if (dev) {
+	if (dev && dev->vaddr) {
 		pr_debug("freeing memory at 0x%p\n", dev->vaddr);
-		free_contiguous_memory(dev->vaddr);
+		dma_free_coherent(NULL, dev->buflen, dev->vaddr, dev->paddr);
 		dev->paddr = 0L;
 		dev->vaddr = NULL;
 	}
@@ -86,7 +93,7 @@ static int msm_buspm_dev_open(struct inode *inode, struct file *filp)
 static int
 msm_buspm_dev_alloc(struct file *filp, struct buspm_alloc_params data)
 {
-	unsigned long paddr;
+	dma_addr_t paddr;
 	void *vaddr;
 	struct msm_buspm_map_dev *dev = filp->private_data;
 
@@ -95,8 +102,7 @@ msm_buspm_dev_alloc(struct file *filp, struct buspm_alloc_params data)
 		msm_buspm_dev_free(filp);
 
 	/* Allocate uncached memory */
-	vaddr = allocate_contiguous_ebi(data.size, PAGE_SIZE, 0);
-	paddr = (vaddr) ? memory_pool_node_paddr(vaddr) : 0L;
+	vaddr = dma_alloc_coherent(NULL, data.size, &paddr, GFP_KERNEL);
 
 	if (vaddr == NULL) {
 		pr_err("allocation of 0x%x bytes failed", data.size);
@@ -113,6 +119,61 @@ msm_buspm_dev_alloc(struct file *filp, struct buspm_alloc_params data)
 	return 0;
 }
 
+static int msm_bus_rpm_req(u32 rsc_type, u32 key, u32 hwid,
+	int ctx, u32 val)
+{
+	struct msm_rpm_request *rpm_req;
+	int ret, msg_id;
+
+	rpm_req = msm_rpm_create_request(ctx, rsc_type, SPDM_RES_ID, 1);
+	if (rpm_req == NULL) {
+		pr_err("RPM: Couldn't create RPM Request\n");
+		return -ENXIO;
+	}
+
+	ret = msm_rpm_add_kvp_data(rpm_req, key, (const uint8_t *)&val,
+		(int)(sizeof(uint32_t)));
+	if (ret) {
+		pr_err("RPM: Add KVP failed for RPM Req:%u\n",
+			rsc_type);
+		goto err;
+	}
+
+	pr_debug("Added Key: %d, Val: %u, size: %d\n", key,
+		(uint32_t)val, sizeof(uint32_t));
+	msg_id = msm_rpm_send_request(rpm_req);
+	if (!msg_id) {
+		pr_err("RPM: No message ID for req\n");
+		ret = -ENXIO;
+		goto err;
+	}
+
+	ret = msm_rpm_wait_for_ack(msg_id);
+	if (ret) {
+		pr_err("RPM: Ack failed\n");
+		goto err;
+	}
+
+err:
+	msm_rpm_free_request(rpm_req);
+	return ret;
+}
+
+static int msm_buspm_ioc_cmds(uint32_t arg)
+{
+	switch (arg) {
+	case MSM_BUSPM_SPDM_CLK_DIS:
+	case MSM_BUSPM_SPDM_CLK_EN:
+		return msm_bus_rpm_req(SPDM_RES_TYPE, SPDM_KEY, 0,
+				MSM_RPM_CTX_ACTIVE_SET, arg);
+	default:
+		pr_warn("Unsupported ioctl command: %d\n", arg);
+		return -EINVAL;
+	}
+}
+
+
+
 static long
 msm_buspm_dev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
@@ -123,6 +184,11 @@ msm_buspm_dev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	void *buf = msm_buspm_dev_get_vaddr(filp);
 	unsigned int buflen = msm_buspm_dev_get_buflen(filp);
 	unsigned char *dbgbuf = buf;
+
+	if (_IOC_TYPE(cmd) != MSM_BUSPM_IOC_MAGIC) {
+		pr_err("Wrong IOC_MAGIC.Exiting\n");
+		return -ENOTTY;
+	}
 
 	switch (cmd) {
 	case MSM_BUSPM_IOC_FREE:
@@ -191,6 +257,11 @@ msm_buspm_dev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 			retval = -EFAULT;
 			break;
 		}
+		break;
+
+	case MSM_BUSPM_IOC_CMD:
+		pr_debug("IOCTL command: cmd: %d arg: %lu\n", cmd, arg);
+		retval = msm_buspm_ioc_cmds(arg);
 		break;
 
 	default:

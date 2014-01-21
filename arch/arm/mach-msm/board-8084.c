@@ -28,7 +28,7 @@
 #include <mach/msm_smd.h>
 #include <mach/restart.h>
 #include <mach/socinfo.h>
-#include <mach/rpm-smd.h>
+#include <soc/qcom/rpm-smd.h>
 #include <soc/msm/smem.h>
 #include "spm.h"
 #include "board-dt.h"

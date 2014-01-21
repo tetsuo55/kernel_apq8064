@@ -26,9 +26,9 @@
 #include <mach/msm_memtypes.h>
 #include <mach/qpnp-int.h>
 #include <soc/msm/smem.h>
+#include <soc/qcom/rpm-smd.h>
 #include <mach/msm_smd.h>
 #include <mach/restart.h>
-#include <mach/rpm-smd.h>
 
 #include <linux/io.h>
 #include <linux/gpio.h>

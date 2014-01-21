@@ -24,7 +24,7 @@
 #include <linux/clk/msm-clock-generic.h>
 
 #include <mach/socinfo.h>
-#include <mach/rpm-smd.h>
+#include <soc/qcom/rpm-smd.h>
 
 #include "clock-local2.h"
 #include "clock-pll.h"
