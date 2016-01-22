@@ -499,13 +499,10 @@ const struct list_head* get_wakeup_reasons(unsigned long timeout,
 
 		if (timeout)
 			signalled = wait_for_completion_timeout(&wakeups_completion, timeout);
-<<<<<<< HEAD
-		if (WARN_ON(!signalled)) {
-=======
+
 		if (!signalled) {
 			pr_warn("%s: completion timeout\n", __func__);
 			wakeup_ready_timeout++;
->>>>>>> f4746e5c... Power: Add wakeup reasons counters from boot in suspend_since_boot
 			stop_logging_wakeup_reasons();
 			walk_irq_node_tree(base_irq_nodes, build_unfinished_nodes, unfinished);
 			return NULL;
