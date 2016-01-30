@@ -19,6 +19,7 @@
 #include <linux/err.h>
 #include <linux/time.h>
 #include <linux/mutex.h>
+#include <linux/display_state.h>
 
 #include <video/mipi_dsi_panel.h>
 #include "msm_fb.h"
@@ -114,6 +115,13 @@ static struct msm_panel_info default_pinfo = {
 };
 
 static struct mdp_pcc_cfg_data *color_calib;
+
+bool display_on = true;
+
+bool is_display_on(void)
+{
+        return display_on;
+}
 
 static u32 ts_diff_ms(struct timespec lhs, struct timespec rhs)
 {
@@ -465,6 +473,8 @@ static int panel_on(struct platform_device *pdev)
 	set_power_suspend_state_panel_hook(POWER_SUSPEND_INACTIVE);
 #endif
 
+	display_on = true;
+
 	dev = &mfd->panel_pdev->dev;
 	dev_dbg(dev, "%s\n", __func__);
 
@@ -597,6 +607,9 @@ static int panel_off(struct platform_device *pdev)
 		goto unlock_and_exit;
 	}
 	dev_info(dev, "%s: DISPLAY_OFF sent\n", __func__);
+
+	display_on = false;
+
 power_off:
 	if (dsi_data->lcd_power)
 		ret = dsi_data->lcd_power(FALSE);
