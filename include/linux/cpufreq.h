@@ -369,7 +369,16 @@ enum {
 	BOOT_CPU = 0,
 };
   
-#define MAX_FREQ_LIMIT 1512000
+#ifdef CONFIG_LOW_CPUCLOCKS
+#define MIN_FREQ_LIMIT	192000
+#else
+#define MIN_FREQ_LIMIT	384000
+#endif
+#ifdef CONFIG_CPU_OVERCLOCK
+#define MAX_FREQ_LIMIT	1728000
+#else
+#define MAX_FREQ_LIMIT	1512000
+#endif
 
 /*********************************************************************
  *                       CPUFREQ DEFAULT GOVERNOR                    *
