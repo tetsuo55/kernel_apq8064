@@ -17,12 +17,15 @@ if [ ! -d ${PRIMA_PATH}/.git ] ; then
 fi
 ### end prima
 
+export ARCH=arm
+export PATH=../../../prebuilts/gcc/linux-x86/arm/arm-eabi-5.3/bin/:$PATH
+export CROSS_COMPILE=arm-eabi-
 
-export TCHAIN=../../../prebuilts/gcc/linux-x86/arm/arm-eabi-4.8/bin/arm-eabi-
+# build kernel
+make fusion3_yuga_defconfig
+make -j8
 
-make ARCH=arm clean
-make ARCH=arm CROSS_COMPILE=$TCHAIN kma_fusion3_yuga_defconfig
-make ARCH=arm CROSS_COMPILE=$TCHAIN -j 8
+export TCHAIN=arm-eabi-
 
 # add new kernel
 cp arch/arm/boot/zImage ../../../device/sony/c6603/kernel 
